@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import { getAllCustomer } from "../../service/customer-service";
 import { getAllPosition } from "../../service/position-service";
 import { getAllStatus } from "../../service/status-service";
+import { useNavigate } from "react-router-dom";
+import ModalDelete from "./ModalDelete";
+import { MDBBtn } from "mdb-react-ui-kit";
 
 export const initRequestDto = {
   page: 0,
-  size: 3,
+  size: 5,
   sortDirection: "ASC",
   sortBy: "id",
   name: "",
@@ -19,6 +22,11 @@ const CustomerApp = () => {
   const [positions, setPositions] = useState<any>();
   const [status, setStatus] = useState<any>();
   const [requestDto, setRequestDto] = useState(initRequestDto);
+  const navigate = useNavigate();
+  const [basicModal, setBasicModal] = useState(false);
+  const [customer, setCustomer] = useState();
+
+  const toggleOpen = () => setBasicModal(!basicModal);
 
   useEffect(() => {
     findAllCustomer(requestDto);
@@ -79,6 +87,25 @@ const CustomerApp = () => {
       ) : (
         <i className="fas fa-caret-down"></i>
       );
+  };
+
+  const renderPageNumberClass = (index: number, number: number) => {
+    return number === index ? "page-link active" : "page-link";
+  };
+
+  const handleShowEdit = (id: number) => {
+    console.log(id);
+    navigate(`/edit/${id}`);
+  };
+
+  const handleShowDelete = (cus: any) => {
+    setCustomer(cus);
+    toggleOpen();
+  };
+
+  const handleDeleteSuccess = () => {
+    toggleOpen();
+    findAllCustomer(requestDto);
   };
 
   if (!customers) return <div>Loading...</div>;
@@ -233,8 +260,16 @@ const CustomerApp = () => {
                 <button
                   type="button"
                   className="btn btn-link btn-sm btn-rounded"
+                  onClick={() => handleShowEdit(customer.id)}
                 >
                   Edit
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-link btn-sm btn-rounded"
+                  onClick={() => handleShowDelete(customer)}
+                >
+                  Delete
                 </button>
               </td>
             </tr>
@@ -256,21 +291,18 @@ const CustomerApp = () => {
                   Previous
                 </button>
               </li>
-              <li className="page-item">
-                <a className="page-link" href="#">
-                  1
-                </a>
-              </li>
-              <li className="page-item">
-                <a className="page-link" href="#">
-                  2
-                </a>
-              </li>
-              <li className="page-item">
-                <a className="page-link" href="#">
-                  3
-                </a>
-              </li>
+              {Array.from(Array(customers.totalPages)).map(
+                (item, index): any => (
+                  <li className="page-item" key={index}>
+                    <button
+                      className={renderPageNumberClass(index, customers.number)}
+                      onClick={() => handleChangePage(index)}
+                    >
+                      {index + 1}
+                    </button>
+                  </li>
+                )
+              )}
               <li className="page-item">
                 <button
                   className={`page-link ${
@@ -286,6 +318,14 @@ const CustomerApp = () => {
           </nav>
         )}
       </div>
+      {customer && (
+        <ModalDelete
+          basicModal={basicModal}
+          setBasicModal={setBasicModal}
+          customer={customer}
+          onDeleteSuccess={handleDeleteSuccess}
+        />
+      )}
     </div>
   );
 };

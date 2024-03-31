@@ -7,8 +7,8 @@ import * as yup from "yup";
 import { getAllPosition } from "../../service/position-service";
 import { getAllStatus } from "../../service/status-service";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
-import { saveCustomer } from "../../service/customer-service";
+import { useNavigate, useParams } from "react-router-dom";
+import { getCustomerById, saveCustomer } from "../../service/customer-service";
 
 const schema = yup.object().shape({
   email: yup.string().email().required(),
@@ -23,7 +23,7 @@ const schema = yup.object().shape({
 const DEFAULT_AVATAR =
   "https://i.pinimg.com/736x/0d/64/98/0d64989794b1a4c9d89bff571d3d5842.jpg";
 
-const Create = () => {
+const Edit = () => {
   const inputRef = useRef<any>(null);
   const [file, setFile] = useState<any>();
   const [imageUrl, setImageUrl] = useState<any>();
@@ -31,6 +31,24 @@ const Create = () => {
   const [positionList, setPositionList] = useState<any>();
   const [statusList, setStatusList] = useState<any>();
   const navigate = useNavigate();
+  const param = useParams();
+  const [customer, setCustomer] = useState<any>();
+
+  useEffect(() => {
+    if (param && param.id) {
+      const obj = { id: param.id };
+      getCustomerById(obj).then((res: any) => {
+        const obj = {
+          ...res,
+          positionId: res.customerPosition.id,
+          statusId: res.customerStatus.id,
+        };
+        setCustomer(obj);
+        reset(obj);
+        setImageUrl(obj.avatar);
+      });
+    }
+  }, [param]);
 
   const {
     register,
@@ -49,11 +67,11 @@ const Create = () => {
       saveCustomer(obj)
         .then((res: any) => {
           reset();
-          toast("Thêm mới thành công!!");
+          toast("Chỉnh sửa thành công!!");
           navigate("/");
         })
         .catch((err: any) => {
-          toast("Thêm mới thất bại!!");
+          toast("Chỉnh sửa thất bại!!");
         });
     }
   };
@@ -113,8 +131,8 @@ const Create = () => {
   const handleRestore = () => {
     URL.revokeObjectURL(file);
     setFile(null);
-    setImageUrl(null);
-    reset();
+    setImageUrl(customer.avatar);
+    reset(customer);
     inputRef.current.value = null;
   };
 
@@ -309,7 +327,7 @@ const Create = () => {
             <div className="col-12 text-center mt-5">
               <button
                 className="btn mt-3 btn-secondary"
-                type="reset"
+                type="button"
                 onClick={handleRestore}
               >
                 <i className="fas fa-arrow-rotate-left me-2"></i>
@@ -323,4 +341,4 @@ const Create = () => {
   );
 };
 
-export default Create;
+export default Edit;
