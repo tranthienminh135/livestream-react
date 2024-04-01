@@ -21,7 +21,7 @@ const HeaderBar = () => {
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item active">
                 <Link to="/" className="nav-link">
-                  Customer List
+                  Employee List
                 </Link>
               </li>
               <li className="nav-item">
