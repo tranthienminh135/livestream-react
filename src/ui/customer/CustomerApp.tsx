@@ -94,8 +94,7 @@ const CustomerApp = () => {
   };
 
   const handleShowEdit = (id: number) => {
-    console.log(id);
-    navigate(`/edit/${id}`);
+    navigate(`/customer/edit/${id}`);
   };
 
   const handleShowDelete = (cus: any) => {
@@ -106,6 +105,10 @@ const CustomerApp = () => {
   const handleDeleteSuccess = () => {
     toggleOpen();
     findAllCustomer(requestDto);
+  };
+
+  const handleCreateCustomer = () => {
+    navigate("/customer/create");
   };
 
   if (!customers) return <div>Loading...</div>;
@@ -140,6 +143,7 @@ const CustomerApp = () => {
           <select
             className="form-select"
             name="positionId"
+            defaultValue={-1}
             onChange={handleInputChange}
           >
             <option selected value={-1}>
@@ -157,6 +161,7 @@ const CustomerApp = () => {
           <select
             className="form-select"
             name="statusId"
+            defaultValue={-1}
             onChange={handleInputChange}
           >
             <option selected value={-1}>
@@ -174,13 +179,20 @@ const CustomerApp = () => {
               ))}
           </select>
         </div>
-        <div className="col-12">
+        <div className="col-12 mb-3">
           <button
             type="button"
             className="btn btn-outline-primary"
             onClick={handleSearch}
           >
             search
+          </button>
+          <button
+            type="button"
+            className="btn btn-outline-primary float-end"
+            onClick={handleCreateCustomer}
+          >
+            Create
           </button>
         </div>
       </div>
@@ -231,7 +243,7 @@ const CustomerApp = () => {
               <td>
                 <div className="d-flex align-items-center">
                   <img
-                    src={customer.avatar}
+                    src={`data:image/jpeg;base64,${customer.avatar}`}
                     alt=""
                     style={{ width: "45px", height: "45px" }}
                     className="rounded-circle"

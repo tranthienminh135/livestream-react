@@ -1,6 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import storage from "../../config/firebase/firebase";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -9,6 +7,7 @@ import { getAllStatus } from "../../service/status-service";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { saveCustomer } from "../../service/customer-service";
+import { getByteArray } from "../../common/render";
 
 const schema = yup.object().shape({
   email: yup.string().email().required(),
@@ -42,19 +41,21 @@ const Create = () => {
     resolver: yupResolver(schema),
   });
   const onSubmitHandler = (data: any) => {
-    if (loadingUpload === "PENDING") {
+    if (!file) {
       toast("Please upload an image first!");
     } else {
-      const obj = { ...data, avatar: imageUrl ? imageUrl : DEFAULT_AVATAR };
-      saveCustomer(obj)
-        .then((res: any) => {
-          reset();
-          toast("Thêm mới thành công!!");
-          navigate("/");
-        })
-        .catch((err: any) => {
-          toast("Thêm mới thất bại!!");
-        });
+      getByteArray(file).then((byteArray) => {
+        const obj = { ...data, avatar: byteArray };
+        saveCustomer(obj)
+          .then((res: any) => {
+            reset();
+            toast("Thêm mới thành công!!");
+            navigate("/customer");
+          })
+          .catch((err: any) => {
+            toast("Thêm mới thất bại!!");
+          });
+      });
     }
   };
 
@@ -91,25 +92,6 @@ const Create = () => {
     return DEFAULT_AVATAR;
   };
 
-  const handleUploadFile = () => {
-    if (!file) {
-      toast("Please upload an image first!");
-    } else {
-      setLoadingUpload("LOADING");
-      const storageRef = ref(storage, `/files/${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-      getDownloadURL(uploadTask.snapshot.ref)
-        .then((url) => {
-          setImageUrl(url);
-          console.log(url);
-        })
-        .catch((err) => {})
-        .finally(() => {
-          setLoadingUpload("DONE");
-        });
-    }
-  };
-
   const handleRestore = () => {
     URL.revokeObjectURL(file);
     setFile(null);
@@ -133,9 +115,10 @@ const Create = () => {
   return (
     <div className="container p-5">
       <h1 className="text-center mb-5">CREATE CUSTOMER</h1>
+
       <div className="row">
         <div className="col-md-12 col-xl-4 row">
-          <div className="col-12">
+          <div className="col-12 mb-5">
             <div
               className="bg-image hover-overlay ripple m-auto"
               style={{
@@ -166,28 +149,6 @@ const Create = () => {
                 </div>
               </a>
             </div>
-          </div>
-          <div className="col-12 text-center mb-5">
-            {loadingUpload !== "LOADING" && (
-              <button
-                className="btn text-white mt-3 btn-primary"
-                disabled={!file || loadingUpload === "DONE"}
-                onClick={handleUploadFile}
-              >
-                <i className="far fa-image me-2"></i>
-                Upload
-              </button>
-            )}
-            {loadingUpload === "LOADING" && (
-              <button className="btn text-white mt-3 btn-primary" disabled>
-                <span
-                  className="spinner-border spinner-border-sm me-2"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-                <span>Loading...</span>
-              </button>
-            )}
           </div>
         </div>
         <form

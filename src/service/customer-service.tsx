@@ -1,4 +1,3 @@
-import axios from "axios";
 import { initRequestDto } from "../ui/customer/CustomerApp";
 import { axiosClient } from "./api-service";
 

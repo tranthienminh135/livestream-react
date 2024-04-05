@@ -9,7 +9,7 @@ const Layout = () => {
     <>
       <HeaderBar />
       <Outlet />
-      <ToastContainer />
+      <ToastContainer position="top-center" />
     </>
   );
 };
