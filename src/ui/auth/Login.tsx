@@ -29,13 +29,17 @@ const Login = () => {
   });
 
   const onSubmitHandler = (data: any) => {
-    handleLogin(data).then((res: any) => {
-      navigate("/");
-      toast("Đăng nhập thành công!!");
-      findUserInfo().then((res: any) => {
-        dispatch(userActions.setUserInfo(res));
+    handleLogin(data)
+      .then((res: any) => {
+        navigate("/");
+        toast("Đăng nhập thành công!!");
+        findUserInfo().then((res: any) => {
+          dispatch(userActions.setUserInfo(res));
+        });
+      })
+      .catch((err) => {
+        toast("Tên tài khoản hoặc mật khẩu không chính xác!");
       });
-    });
   };
 
   return (

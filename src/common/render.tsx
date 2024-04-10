@@ -1,6 +1,6 @@
 import { UserInformation } from "../config/redux/slide/user-slice";
 
-export const isAdmin = (info: UserInformation) => {
+export const isAdmin = (info: UserInformation): boolean => {
   return info.appRole.roleName === "ROLE_ADMIN";
 };
 

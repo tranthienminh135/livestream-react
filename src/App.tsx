@@ -6,7 +6,7 @@ import { useAppDispatch } from "./config/redux/redux-hook";
 import { getUserInfo, userActions } from "./config/redux/slide/user-slice";
 import { findUserInfo } from "./service/user-service";
 import Login from "./ui/auth/Login";
-import Home from "./ui/base/Home";
+import Home from "./ui/home/Home";
 import Layout from "./ui/base/Layout";
 import Create from "./ui/customer/Create";
 import CustomerApp from "./ui/customer/CustomerApp";

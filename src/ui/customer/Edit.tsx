@@ -112,13 +112,14 @@ const Edit = () => {
   const renderImage = () => {
     if (file) return URL.createObjectURL(file);
     if (imageUrl) return imageUrl;
+    if (customer?.avatar) return `data:image/jpeg;base64,${customer.avatar}`;
     return DEFAULT_AVATAR;
   };
 
   const handleRestore = () => {
     URL.revokeObjectURL(file);
     setFile(null);
-    setImageUrl(customer.avatar);
+    setImageUrl(`data:image/jpeg;base64,${customer.avatar}`);
     reset(customer);
     inputRef.current.value = null;
   };

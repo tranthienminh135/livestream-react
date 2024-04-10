@@ -1,13 +1,6 @@
-import {
-  MDBDropdown,
-  MDBDropdownItem,
-  MDBDropdownMenu,
-  MDBDropdownToggle,
-} from "mdb-react-ui-kit";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { isLogin } from "../../common/render";
 import { useAppDispatch } from "../../config/redux/redux-hook";
 import {
   getUserInfo,
@@ -15,18 +8,23 @@ import {
   userActions,
 } from "../../config/redux/slide/user-slice";
 import { handleLogout } from "../../service/auth-service";
+import { useState } from "react";
+import { isLogin } from "../../common/render";
+import {
+  MDBDropdown,
+  MDBDropdownItem,
+  MDBDropdownMenu,
+  MDBDropdownToggle,
+} from "mdb-react-ui-kit";
 
 const HeaderBar = () => {
   const userInfo = useSelector(getUserInfo);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [openBasic, setOpenBasic] = useState(false);
 
   const handleLogin = () => {
     navigate("/login");
-  };
-
-  const handleNavigateCustomer = () => {
-    navigate("/customer");
   };
 
   const onLogoutHandler = (e: any) => {
@@ -51,77 +49,172 @@ const HeaderBar = () => {
 
   return (
     <header>
-      <nav className="navbar navbar-expand-lg navbar-light bg-body-tertiary">
+      <div className="p-3 text-center bg-white border-bottom">
         <div className="container">
-          <a className="navbar-brand me-2" href="https://mdbgo.com/">
-            <img
-              src="https://mdbcdn.b-cdn.net/img/logo/mdb-transaprent-noshadows.webp"
-              height="16"
-              alt="MDB Logo"
-              loading="lazy"
-              style={{ marginTop: "-1px" }}
-            />
-          </a>
+          <div className="row gy-3">
+            <div className="col-lg-2 col-sm-4 col-4">
+              <a
+                href="https://mdbootstrap.com/"
+                target="_blank"
+                className="float-start"
+              >
+                <img
+                  src="https://mdbootstrap.com/img/logo/mdb-transaprent-noshadows.png"
+                  height="35"
+                />
+              </a>
+            </div>
+
+            <div className="order-lg-last col-lg-5 col-sm-8 col-8">
+              <div className="d-flex float-end">
+                {isLogin(userInfo) && (
+                  <button
+                    className="me-1 border rounded py-1 px-3 nav-link d-flex align-items-center"
+                    onClick={handleLogin}
+                  >
+                    <i className="fas fa-user-alt m-1 me-md-2"></i>
+                    <p className="d-none d-md-block mb-0">Sign in</p>
+                  </button>
+                )}
+                {!isLogin(userInfo) && (
+                  <button
+                    className="me-1 border rounded py-1 px-3 nav-link d-flex align-items-center"
+                    onClick={onLogoutHandler}
+                  >
+                    <i className="fas fa-user-alt m-1 me-md-2"></i>
+                    <p className="d-none d-md-block mb-0">Logout</p>
+                  </button>
+                )}
+                {!isLogin(userInfo) && (
+                  <button className="me-1 border rounded py-1 px-3 nav-link d-flex align-items-center">
+                    <i className="fas fa-heart m-1 me-md-2"></i>
+                    <p className="d-none d-md-block mb-0">Wishlist</p>
+                  </button>
+                )}
+                <button className="border rounded py-1 px-3 nav-link d-flex align-items-center">
+                  <i className="fas fa-shopping-cart m-1 me-md-2"></i>
+                  <p className="d-none d-md-block mb-0">My cart</p>
+                </button>
+                <MDBDropdown>
+                  <MDBDropdownToggle color="link">
+                    <img
+                      width="40px"
+                      src="https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Anh-avatar-hoat-hinh-de-thuong-xinh-xan.jpg?1704788263223"
+                    />
+                  </MDBDropdownToggle>
+                  <MDBDropdownMenu>
+                    <MDBDropdownItem link>Action</MDBDropdownItem>
+                    <MDBDropdownItem link>Another action</MDBDropdownItem>
+                    <MDBDropdownItem link>Something else here</MDBDropdownItem>
+                  </MDBDropdownMenu>
+                </MDBDropdown>
+              </div>
+            </div>
+
+            <div className="col-lg-5 col-md-12 col-12">
+              <div className="input-group float-center">
+                <div className="form-outline">
+                  <input type="search" id="form1" className="form-control" />
+                  <label className="form-label" htmlFor="form1">
+                    Search
+                  </label>
+                </div>
+                <button type="button" className="btn btn-primary shadow-0">
+                  <i className="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <nav
+        className="navbar navbar-expand-lg navbar-light"
+        style={{ backgroundColor: "#f5f5f5" }}
+      >
+        <div className="container justify-content-center justify-content-md-between">
           <button
-            data-mdb-collapse-init
-            className="navbar-toggler"
+            className="navbar-toggler border text-dark py-2"
             type="button"
-            data-mdb-target="#navbarButtonsExample"
-            aria-controls="navbarButtonsExample"
+            data-mdb-toggle="collapse"
+            data-mdb-target="#navbarLeftAlignExample"
+            aria-controls="navbarLeftAlignExample"
             aria-expanded="false"
             aria-label="Toggle navigation"
           >
             <i className="fas fa-bars"></i>
           </button>
 
-          <div className="collapse navbar-collapse" id="navbarButtonsExample">
+          <div className="collapse navbar-collapse" id="navbarLeftAlignExample">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
-                <a className="nav-link" href="#">
-                  Dashboard
+                <a className="nav-link text-dark" aria-current="page" href="#">
+                  Home
                 </a>
               </li>
+              <li className="nav-item">
+                <a className="nav-link text-dark" href="#">
+                  Categories
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link text-dark" href="#">
+                  Hot offers
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link text-dark" href="#">
+                  Gift boxes
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link text-dark" href="#">
+                  Projects
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link text-dark" href="#">
+                  Menu item
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link text-dark" href="#">
+                  Menu name
+                </a>
+              </li>
+              <li className="nav-item dropdown">
+                <a
+                  className="nav-link dropdown-toggle text-dark mb-0"
+                  href="#"
+                  id="navbarDropdown"
+                  role="button"
+                  data-mdb-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  Others
+                </a>
+                <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <li>
+                    <a className="dropdown-item" href="#">
+                      Action
+                    </a>
+                  </li>
+                  <li>
+                    <a className="dropdown-item" href="#">
+                      Another action
+                    </a>
+                  </li>
+                  <li>
+                    <hr className="dropdown-divider" />
+                  </li>
+                  <li>
+                    <a className="dropdown-item" href="#">
+                      Something else here
+                    </a>
+                  </li>
+                </ul>
+              </li>
             </ul>
-            {!isLogin(userInfo) && (
-              <div className="d-flex align-items-center">
-                <MDBDropdown>
-                  <MDBDropdownToggle color="secondary">
-                    <span className="fw-bold">{userInfo.fullName} - </span>
-                    {renderRoleName(userInfo.appRole.roleName)}
-                  </MDBDropdownToggle>
-                  <MDBDropdownMenu dark>
-                    <MDBDropdownItem link onClick={handleNavigateCustomer}>
-                      Customer
-                    </MDBDropdownItem>
-                    <MDBDropdownItem link>Another action</MDBDropdownItem>
-                    <MDBDropdownItem link>Something else here</MDBDropdownItem>
-                    <MDBDropdownItem divider />
-                    <MDBDropdownItem link onClick={onLogoutHandler}>
-                      Logout
-                    </MDBDropdownItem>
-                  </MDBDropdownMenu>
-                </MDBDropdown>
-              </div>
-            )}
-            {isLogin(userInfo) && (
-              <div className="d-flex align-items-center">
-                <button
-                  data-mdb-ripple-init
-                  type="button"
-                  className="btn btn-link px-3 me-2"
-                  onClick={handleLogin}
-                >
-                  Login
-                </button>
-                <button
-                  data-mdb-ripple-init
-                  type="button"
-                  className="btn btn-primary me-3"
-                >
-                  Sign up for free
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </nav>
