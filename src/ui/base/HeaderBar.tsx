@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../config/redux/redux-hook";
 import {
@@ -36,6 +36,10 @@ const HeaderBar = () => {
     });
   };
 
+  const handleShowUserInfo = () => {
+    navigate("/info");
+  };
+
   const renderRoleName = (roleName: string) => {
     switch (roleName) {
       case "ROLE_ADMIN":
@@ -47,22 +51,22 @@ const HeaderBar = () => {
     }
   };
 
+  const handleShowCart = () => {
+    navigate("/cart");
+  };
+
   return (
     <header>
       <div className="p-3 text-center bg-white border-bottom">
         <div className="container">
           <div className="row gy-3">
             <div className="col-lg-2 col-sm-4 col-4">
-              <a
-                href="https://mdbootstrap.com/"
-                target="_blank"
-                className="float-start"
-              >
+              <Link to="/" className="float-start">
                 <img
                   src="https://mdbootstrap.com/img/logo/mdb-transaprent-noshadows.png"
                   height="35"
                 />
-              </a>
+              </Link>
             </div>
 
             <div className="order-lg-last col-lg-5 col-sm-8 col-8">
@@ -76,38 +80,41 @@ const HeaderBar = () => {
                     <p className="d-none d-md-block mb-0">Sign in</p>
                   </button>
                 )}
-                {!isLogin(userInfo) && (
-                  <button
-                    className="me-1 border rounded py-1 px-3 nav-link d-flex align-items-center"
-                    onClick={onLogoutHandler}
-                  >
-                    <i className="fas fa-user-alt m-1 me-md-2"></i>
-                    <p className="d-none d-md-block mb-0">Logout</p>
-                  </button>
-                )}
-                {!isLogin(userInfo) && (
-                  <button className="me-1 border rounded py-1 px-3 nav-link d-flex align-items-center">
-                    <i className="fas fa-heart m-1 me-md-2"></i>
-                    <p className="d-none d-md-block mb-0">Wishlist</p>
-                  </button>
-                )}
-                <button className="border rounded py-1 px-3 nav-link d-flex align-items-center">
+                <button
+                  className="me-1 border rounded py-1 px-3 nav-link d-flex align-items-center"
+                  onClick={handleShowCart}
+                >
                   <i className="fas fa-shopping-cart m-1 me-md-2"></i>
-                  <p className="d-none d-md-block mb-0">My cart</p>
+                  <p className="d-none d-md-block mb-0">0</p>
                 </button>
-                <MDBDropdown>
-                  <MDBDropdownToggle color="link">
-                    <img
-                      width="40px"
-                      src="https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Anh-avatar-hoat-hinh-de-thuong-xinh-xan.jpg?1704788263223"
-                    />
-                  </MDBDropdownToggle>
-                  <MDBDropdownMenu>
-                    <MDBDropdownItem link>Action</MDBDropdownItem>
-                    <MDBDropdownItem link>Another action</MDBDropdownItem>
-                    <MDBDropdownItem link>Something else here</MDBDropdownItem>
-                  </MDBDropdownMenu>
-                </MDBDropdown>
+                {!isLogin(userInfo) && (
+                  <MDBDropdown>
+                    <MDBDropdownToggle
+                      color="link"
+                      className="me-1 border rounded py-1 px-3 nav-link d-flex align-items-center"
+                      style={{ height: "100%" }}
+                    >
+                      <i className="fas fa-user-alt m-1 me-md-2"></i>
+                      <p className="d-none d-md-block mb-0">
+                        {userInfo.fullName} -{" "}
+                        {renderRoleName(userInfo.appRole.roleName)}
+                      </p>
+                    </MDBDropdownToggle>
+                    <MDBDropdownMenu>
+                      <MDBDropdownItem link onClick={handleShowUserInfo}>
+                        Thông tin
+                      </MDBDropdownItem>
+                      <MDBDropdownItem link>Wishlist</MDBDropdownItem>
+                      <MDBDropdownItem link>
+                        Something else here
+                      </MDBDropdownItem>
+                      <MDBDropdownItem divider />
+                      <MDBDropdownItem link onClick={onLogoutHandler}>
+                        Logout
+                      </MDBDropdownItem>
+                    </MDBDropdownMenu>
+                  </MDBDropdown>
+                )}
               </div>
             </div>
 

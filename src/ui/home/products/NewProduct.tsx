@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Loading from "../../common/Loading";
 import { get8NewProduct } from "../../../service/product-service";
+import { Link } from "react-router-dom";
 
 const NewProduct = () => {
   const [products, setProducts] = useState<any>();
@@ -11,8 +12,6 @@ const NewProduct = () => {
     };
     find8New();
   }, []);
-
-  console.log(products);
 
   if (!products) return <Loading />;
 
@@ -27,7 +26,7 @@ const NewProduct = () => {
           {products.map((product: any) => (
             <div className="col-lg-3 col-md-6 col-sm-6" key={product.id}>
               <div className="card my-2 shadow-0">
-                <a href="#" className="">
+                <Link to={`/product/${product.id}`} className="">
                   <div className="mask" style={{ height: "50px" }}>
                     <div className="d-flex justify-content-start align-items-start h-100 m-2">
                       <h6>
@@ -40,7 +39,7 @@ const NewProduct = () => {
                     className="card-img-top rounded-2"
                     style={{ aspectRatio: "1 / 1" }}
                   />
-                </a>
+                </Link>
                 <div className="card-body p-0 pt-3">
                   <a
                     href="#!"
@@ -55,7 +54,9 @@ const NewProduct = () => {
                     })}
                   </h5>
                   <p className="card-text mb-0">{product.name}</p>
-                  <p className="text-muted">Model: X-200</p>
+                  <p className="text-muted">
+                    Category: {product.category.name}
+                  </p>
                 </div>
               </div>
             </div>

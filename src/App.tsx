@@ -13,6 +13,11 @@ import CustomerApp from "./ui/customer/CustomerApp";
 import Edit from "./ui/customer/Edit";
 import Page404 from "./ui/common/Page404";
 import Loading from "./ui/common/Loading";
+import ProductApp from "./ui/product/ProductApp";
+import CartApp from "./ui/cart/CartApp";
+import UserApp from "./ui/user/UserApp";
+import ProductDetailApp from "./ui/product/detail/ProductDetailApp";
+import CheckoutApp from "./ui/checkout/CheckoutApp";
 
 function App() {
   const userInfo = useSelector(getUserInfo);
@@ -39,14 +44,14 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          {isAdmin(userInfo) && (
-            <>
-              <Route path={"/customer"} element={<CustomerApp />} />
-              <Route path="/customer/create" element={<Create />} />
-              <Route path="/customer/edit/:id" element={<Edit />} />
-            </>
-          )}
+          <>
+            <Route path={"/product"} element={<ProductApp />} />
+            <Route path={"/product/:id"} element={<ProductDetailApp />} />
+            <Route path="/cart" element={<CartApp />} />
+            <Route path="/checkout" element={<CheckoutApp />} />
+          </>
           {isLogin(userInfo) && <Route path="/login" element={<Login />} />}
+          {!isLogin(userInfo) && <Route path="/info" element={<UserApp />} />}
           <Route path="/*" element={<Page404 />} />
         </Route>
       </Routes>

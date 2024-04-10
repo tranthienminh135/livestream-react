@@ -7,6 +7,8 @@ interface AppRole {
 export interface UserInformation {
   userName: string;
   fullName: string;
+  avatar: string;
+  phoneNumber: string;
   appRole: AppRole;
 }
 
@@ -18,6 +20,8 @@ export const initialUserInfoState: initialUserState = {
   info: {
     userName: "",
     fullName: "",
+    avatar: "",
+    phoneNumber: "",
     appRole: {
       roleName: "",
     },
