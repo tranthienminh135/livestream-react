@@ -7,12 +7,14 @@ import { toast } from "react-toastify";
 import RemoveProduct from "./modal/RemoveProduct";
 import { cartActions } from "../../config/redux/slide/cart-slice";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const CartApp = () => {
   const [carts, setCarts] = useState<any>();
   const [staticModal, setStaticModal] = useState(false);
   const [cart, setCart] = useState<any>();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     onShowProductInCart();
@@ -58,6 +60,10 @@ const CartApp = () => {
         return c + cart.product.price * cart.quantity;
       }, 0);
   }, [carts]);
+
+  const handleMakePurchase = () => {
+    navigate("/checkout");
+  };
 
   if (!carts) return <Loading />;
 
@@ -231,9 +237,12 @@ const CartApp = () => {
                   </div>
 
                   <div className="mt-3">
-                    <a href="#" className="btn btn-success w-100 shadow-0 mb-2">
+                    <button
+                      onClick={handleMakePurchase}
+                      className="btn btn-success w-100 shadow-0 mb-2"
+                    >
                       Make Purchase
-                    </a>
+                    </button>
                     <a href="#" className="btn btn-light w-100 border mt-2">
                       Back to shop
                     </a>

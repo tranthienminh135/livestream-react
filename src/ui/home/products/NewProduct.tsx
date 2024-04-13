@@ -6,10 +6,13 @@ import { useSelector } from "react-redux";
 import { getUserInfo } from "../../../config/redux/slide/user-slice";
 import { isLogin } from "../../../common/render";
 import { toast } from "react-toastify";
+import { useAppDispatch } from "../../../config/redux/redux-hook";
+import { cartActions } from "../../../config/redux/slide/cart-slice";
 
 const NewProduct = () => {
   const [products, setProducts] = useState<any>();
   const userInfo = useSelector(getUserInfo);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const find8New = () => {
@@ -24,6 +27,11 @@ const NewProduct = () => {
       quantity: 1,
     };
     addToCart(obj).then((res: any) => {
+      const size = res.reduce((c: any, cart: any) => {
+        return c + cart.quantity;
+      }, 0);
+      console.log(size);
+      dispatch(cartActions.setCartSize(size));
       toast(`Thêm thành công! ${product.name}`);
     });
   };

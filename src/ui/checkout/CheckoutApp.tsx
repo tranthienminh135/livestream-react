@@ -1,6 +1,32 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { showProductInCart } from "../../service/order-service";
+import Loading from "../common/Loading";
+import { useSelector } from "react-redux";
+import { getUserInfo } from "../../config/redux/slide/user-slice";
 
 const CheckoutApp = () => {
+  const [carts, setCarts] = useState<any>();
+  const userInfo = useSelector(getUserInfo);
+
+  useEffect(() => {
+    onShowProductInCart();
+  }, []);
+
+  const onShowProductInCart = () => {
+    showProductInCart().then((res) => {
+      setCarts(res);
+    });
+  };
+
+  const totalPrice = useMemo(() => {
+    if (carts)
+      return carts.reduce((c: any, cart: any) => {
+        return c + cart.product.price * cart.quantity;
+      }, 0);
+  }, [carts]);
+
+  if (!carts) return <Loading />;
+
   return (
     <section className="bg-light py-5">
       <div className="container">
@@ -66,7 +92,7 @@ const CheckoutApp = () => {
                       <input
                         type="tel"
                         id="typePhone"
-                        value="+48 "
+                        value={userInfo.phoneNumber}
                         className="form-control"
                       />
                     </div>
@@ -80,6 +106,7 @@ const CheckoutApp = () => {
                         id="typeEmail"
                         placeholder="example@gmail.com"
                         className="form-control"
+                        value={userInfo.username}
                       />
                     </div>
                   </div>
@@ -285,7 +312,12 @@ const CheckoutApp = () => {
               <hr />
               <div className="d-flex justify-content-between">
                 <p className="mb-2">Total price:</p>
-                <p className="mb-2 fw-bold">$149.90</p>
+                <p className="mb-2 fw-bold">
+                  {totalPrice.toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                </p>
               </div>
 
               <div className="input-group mt-3 mb-4">
@@ -303,64 +335,42 @@ const CheckoutApp = () => {
               <hr />
               <h6 className="text-dark my-4">Items in cart</h6>
 
-              <div className="d-flex align-items-center mb-4">
-                <div className="me-3 position-relative">
-                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-secondary">
-                    1
-                  </span>
-                  <img
-                    src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/7.webp"
-                    style={{ width: "96px", height: "96px" }}
-                    className="img-sm rounded border"
-                  />
+              {carts.map((cart: any) => (
+                <div className="d-flex align-items-center mb-4">
+                  <div className="me-3 position-relative">
+                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-secondary">
+                      {cart.quantity}
+                    </span>
+                    <img
+                      src={`data:image/jpeg;base64,${cart.product.cover}`}
+                      style={{ width: "96px", height: "96px" }}
+                      className="img-sm rounded border"
+                    />
+                  </div>
+                  <div className="">
+                    <a href="#" className="nav-link">
+                      {cart.product.name} <br />
+                      <small className="text-muted text-nowrap">
+                        {cart.product.price.toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                        / per item
+                      </small>
+                    </a>
+                    <div className="price text-muted">
+                      Tổng tiền:{" "}
+                      {(cart.product.price * cart.quantity).toLocaleString(
+                        "it-IT",
+                        {
+                          style: "currency",
+                          currency: "VND",
+                        }
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="">
-                  <a href="#" className="nav-link">
-                    Gaming Headset with Mic <br />
-                    Darkblue color
-                  </a>
-                  <div className="price text-muted">Total: $295.99</div>
-                </div>
-              </div>
-
-              <div className="d-flex align-items-center mb-4">
-                <div className="me-3 position-relative">
-                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-secondary">
-                    1
-                  </span>
-                  <img
-                    src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/5.webp"
-                    style={{ width: "96px", height: "96px" }}
-                    className="img-sm rounded border"
-                  />
-                </div>
-                <div className="">
-                  <a href="#" className="nav-link">
-                    Apple Watch Series 4 Space <br />
-                    Large size
-                  </a>
-                  <div className="price text-muted">Total: $217.99</div>
-                </div>
-              </div>
-
-              <div className="d-flex align-items-center mb-4">
-                <div className="me-3 position-relative">
-                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-secondary">
-                    3
-                  </span>
-                  <img
-                    src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/1.webp"
-                    style={{ width: "96px", height: "96px" }}
-                    className="img-sm rounded border"
-                  />
-                </div>
-                <div className="">
-                  <a href="#" className="nav-link">
-                    GoPro HERO6 4K Action Camera - Black
-                  </a>
-                  <div className="price text-muted">Total: $910.00</div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
