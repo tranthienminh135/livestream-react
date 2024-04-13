@@ -134,7 +134,7 @@ const ProductDetailApp = () => {
                   </div>
                   <span className="text-muted">
                     <i className="fas fa-shopping-basket fa-sm mx-1"></i>
-                    {product.productOrders.length} orders
+                    orders
                   </span>
                   <span className="text-success ms-2">In stock</span>
                 </div>

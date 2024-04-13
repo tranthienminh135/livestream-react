@@ -8,6 +8,8 @@ import { findUserInfo } from "../../service/user-service";
 import { useAppDispatch } from "../../config/redux/redux-hook";
 import { userActions } from "../../config/redux/slide/user-slice";
 import { useNavigate } from "react-router-dom";
+import { showProductInCart } from "../../service/order-service";
+import { cartActions } from "../../config/redux/slide/cart-slice";
 
 const schema = yup.object().shape({
   username: yup.string().email().required(),
@@ -35,6 +37,12 @@ const Login = () => {
         toast("Đăng nhập thành công!!");
         findUserInfo().then((res: any) => {
           dispatch(userActions.setUserInfo(res));
+        });
+        showProductInCart().then((res) => {
+          const size = res.reduce((c: any, cart: any) => {
+            return c + cart.quantity;
+          }, 0);
+          dispatch(cartActions.setCartSize(size));
         });
       })
       .catch((err) => {

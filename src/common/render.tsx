@@ -5,7 +5,7 @@ export const isAdmin = (info: UserInformation): boolean => {
 };
 
 export const isLogin = (info: UserInformation) => {
-  return info.userName === "";
+  return info.userName !== "";
 };
 
 export async function getByteArray(f: any) {

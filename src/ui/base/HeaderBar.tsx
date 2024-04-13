@@ -16,12 +16,13 @@ import {
   MDBDropdownMenu,
   MDBDropdownToggle,
 } from "mdb-react-ui-kit";
+import { getCart, getCartSize } from "../../config/redux/slide/cart-slice";
 
 const HeaderBar = () => {
   const userInfo = useSelector(getUserInfo);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [openBasic, setOpenBasic] = useState(false);
+  const totalQuantity = useSelector(getCartSize);
 
   const handleLogin = () => {
     navigate("/login");
@@ -71,7 +72,7 @@ const HeaderBar = () => {
 
             <div className="order-lg-last col-lg-5 col-sm-8 col-8">
               <div className="d-flex float-end">
-                {isLogin(userInfo) && (
+                {!isLogin(userInfo) && (
                   <button
                     className="me-1 border rounded py-1 px-3 nav-link d-flex align-items-center"
                     onClick={handleLogin}
@@ -80,14 +81,16 @@ const HeaderBar = () => {
                     <p className="d-none d-md-block mb-0">Sign in</p>
                   </button>
                 )}
-                <button
-                  className="me-1 border rounded py-1 px-3 nav-link d-flex align-items-center"
-                  onClick={handleShowCart}
-                >
-                  <i className="fas fa-shopping-cart m-1 me-md-2"></i>
-                  <p className="d-none d-md-block mb-0">0</p>
-                </button>
-                {!isLogin(userInfo) && (
+                {isLogin(userInfo) && (
+                  <button
+                    className="me-1 border rounded py-1 px-3 nav-link d-flex align-items-center"
+                    onClick={handleShowCart}
+                  >
+                    <i className="fas fa-shopping-cart m-1 me-md-2"></i>
+                    <p className="d-none d-md-block mb-0">{totalQuantity}</p>
+                  </button>
+                )}
+                {isLogin(userInfo) && (
                   <MDBDropdown>
                     <MDBDropdownToggle
                       color="link"

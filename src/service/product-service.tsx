@@ -14,3 +14,8 @@ export const getProductById = async (id: string) => {
   const res = await axiosClient.get(`/public/product/${id}`);
   return res.data;
 };
+
+export const addToCart = async (obj: any) => {
+  const res = await axiosClient.post("/user/order", obj);
+  return res.data;
+};

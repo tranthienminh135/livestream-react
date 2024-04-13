@@ -1,7 +1,66 @@
-import React from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Recommended from "./recommended/Recommended";
+import Loading from "../common/Loading";
+import { showProductInCart } from "../../service/order-service";
+import { addToCart } from "../../service/product-service";
+import { toast } from "react-toastify";
+import RemoveProduct from "./modal/RemoveProduct";
+import { cartActions } from "../../config/redux/slide/cart-slice";
+import { useDispatch } from "react-redux";
 
 const CartApp = () => {
+  const [carts, setCarts] = useState<any>();
+  const [staticModal, setStaticModal] = useState(false);
+  const [cart, setCart] = useState<any>();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    onShowProductInCart();
+  }, []);
+
+  const onShowProductInCart = () => {
+    showProductInCart().then((res) => {
+      const size = res.reduce((c: any, cart: any) => {
+        return c + cart.quantity;
+      }, 0);
+      dispatch(cartActions.setCartSize(size));
+      setCarts(res);
+    });
+  };
+
+  const onAddToCart = (quantity: number, product: any) => {
+    const obj = {
+      productId: product.id,
+      quantity,
+    };
+    addToCart(obj).then((res: any) => {
+      onShowProductInCart();
+    });
+  };
+
+  const onConfirmDelete = () => {
+    onAddToCart(-1, cart.product);
+    setStaticModal(false);
+  };
+
+  const handleQuantityChange = (quantity: number, cart: any) => {
+    if (cart.quantity <= 1 && quantity === -1) {
+      setCart(cart);
+      setStaticModal(true);
+    } else {
+      onAddToCart(quantity, cart.product);
+    }
+  };
+
+  const totalPrice = useMemo(() => {
+    if (carts)
+      return carts.reduce((c: any, cart: any) => {
+        return c + cart.product.price * cart.quantity;
+      }, 0);
+  }, [carts]);
+
+  if (!carts) return <Loading />;
+
   return (
     <>
       <section className="bg-light my-5">
@@ -12,167 +71,103 @@ const CartApp = () => {
               <div className="card border shadow-0">
                 <div className="m-4">
                   <h4 className="card-title mb-4">Your shopping cart</h4>
-                  <div className="row gy-3 mb-4">
-                    <div className="col-lg-5">
-                      <div className="me-lg-5">
-                        <div className="d-flex">
-                          <img
-                            src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/11.webp"
-                            className="border rounded me-3"
-                            style={{ width: "96px", height: "96px" }}
-                          />
-                          <div className="">
-                            <a href="#" className="nav-link">
-                              Winter jacket for men and lady
-                            </a>
-                            <p className="text-muted">Yellow, Jeans</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-lg-2 col-sm-6 col-6 d-flex flex-row flex-lg-column flex-xl-row text-nowrap">
-                      <div className="">
-                        <select className="form-select me-4 w-100">
-                          <option>1</option>
-                          <option>2</option>
-                          <option>3</option>
-                          <option>4</option>
-                        </select>
-                      </div>
-                      <div className="">
-                        <text className="h6">$1156.00</text> <br />
-                        <small className="text-muted text-nowrap">
-                          {" "}
-                          $460.00 / per item{" "}
-                        </small>
-                      </div>
-                    </div>
-                    <div className="col-lg col-sm-6 d-flex justify-content-sm-center justify-content-md-start justify-content-lg-center justify-content-xl-end mb-2">
-                      <div className="float-md-end">
-                        <a
-                          href="#!"
-                          className="btn btn-light border px-2 icon-hover-primary"
-                        >
-                          <i className="fas fa-heart fa-lg px-1 text-secondary"></i>
-                        </a>
-                        <a
-                          href="#"
-                          className="btn btn-light border text-danger icon-hover-danger"
-                        >
-                          {" "}
-                          Remove
-                        </a>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="row gy-3 mb-4">
-                    <div className="col-lg-5">
-                      <div className="me-lg-5">
-                        <div className="d-flex">
-                          <img
-                            src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/12.webp"
-                            className="border rounded me-3"
-                            style={{ width: "96px", height: "96px" }}
-                          />
-                          <div className="">
-                            <a href="#" className="nav-link">
-                              Mens T-shirt Cotton Base
-                            </a>
-                            <p className="text-muted">Blue, Medium</p>
+                  {carts.map((cart: any) => (
+                    <div className="row gy-3 mb-4" key={cart.id}>
+                      <div className="col-lg-5">
+                        <div className="me-lg-5">
+                          <div className="d-flex">
+                            <img
+                              src={`data:image/jpeg;base64,${cart.product.cover}`}
+                              className="border rounded me-3"
+                              style={{ width: "96px", height: "96px" }}
+                            />
+                            <div className="">
+                              <a href="#" className="nav-link">
+                                {cart.product.name}
+                              </a>
+                              <p className="text-muted">
+                                Số lượng: {cart.product.quantity}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="col-lg-2 col-sm-6 col-6 d-flex flex-row flex-lg-column flex-xl-row text-nowrap">
-                      <div className="">
-                        <select className="form-select me-4 w-100">
-                          <option>1</option>
-                          <option>2</option>
-                          <option>3</option>
-                          <option>4</option>
-                        </select>
-                      </div>
-                      <div className="">
-                        <text className="h6">$44.80</text> <br />
-                        <small className="text-muted text-nowrap">
-                          {" "}
-                          $12.20 / per item{" "}
-                        </small>
-                      </div>
-                    </div>
-                    <div className="col-lg col-sm-6 d-flex justify-content-sm-center justify-content-md-start justify-content-lg-center justify-content-xl-end mb-2">
-                      <div className="float-md-end">
-                        <a
-                          href="#!"
-                          className="btn btn-light border px-2 icon-hover-primary"
+                      <div className="col-lg-2 col-sm-6 col-6 d-flex flex-row flex-lg-column flex-xl-row text-nowrap">
+                        <div
+                          style={{
+                            justifyContent: "center",
+                            alignItems: "center",
+                            display: "flex",
+                          }}
                         >
-                          <i className="fas fa-heart fa-lg px-1 text-secondary"></i>
-                        </a>
-                        <a
-                          href="#"
-                          className="btn btn-light border text-danger icon-hover-danger"
+                          <div className="btn-group btn-group-md" role="group">
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              onClick={() => handleQuantityChange(-1, cart)}
+                            >
+                              -
+                            </button>
+                            <button type="button" className="btn" disabled>
+                              {cart.quantity}
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              onClick={() => handleQuantityChange(1, cart)}
+                              disabled={cart.product.quantity === cart.quantity}
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                        <div
+                          className="ms-2"
+                          style={{
+                            justifyContent: "center",
+                            alignItems: "center",
+                            display: "flex",
+                            textAlign: "center",
+                          }}
                         >
-                          {" "}
-                          Remove
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="row gy-3">
-                    <div className="col-lg-5">
-                      <div className="me-lg-5">
-                        <div className="d-flex">
-                          <img
-                            src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/13.webp"
-                            className="border rounded me-3"
-                            style={{ width: "96px", height: "96px" }}
-                          />
-                          <div className="">
-                            <a href="#" className="nav-link">
-                              Blazer Suit Dress Jacket for Men
-                            </a>
-                            <p className="text-muted">XL size, Jeans, Blue</p>
+                          <div className="h6">
+                            <div>
+                              {(
+                                cart.product.price * cart.quantity
+                              ).toLocaleString("it-IT", {
+                                style: "currency",
+                                currency: "VND",
+                              })}
+                            </div>
+                            <small className="text-muted text-nowrap">
+                              {cart.product.price.toLocaleString("it-IT", {
+                                style: "currency",
+                                currency: "VND",
+                              })}
+                              / per item
+                            </small>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="col-lg-2 col-sm-6 col-6 d-flex flex-row flex-lg-column flex-xl-row text-nowrap">
-                      <div className="">
-                        <select className="form-select me-4 w-100">
-                          <option>1</option>
-                          <option>2</option>
-                          <option>3</option>
-                          <option>4</option>
-                        </select>
-                      </div>
-                      <div className="">
-                        <text className="h6">$1156.00</text> <br />
-                        <small className="text-muted text-nowrap">
-                          {" "}
-                          $460.00 / per item{" "}
-                        </small>
-                      </div>
-                    </div>
-                    <div className="col-lg col-sm-6 d-flex justify-content-sm-center justify-content-md-start justify-content-lg-center justify-content-xl-end mb-2">
-                      <div className="float-md-end">
-                        <a
-                          href="#!"
-                          className="btn btn-light border px-2 icon-hover-primary"
-                        >
-                          <i className="fas fa-heart fa-lg px-1 text-secondary"></i>
-                        </a>
-                        <a
-                          href="#"
-                          className="btn btn-light border text-danger icon-hover-danger"
-                        >
-                          {" "}
-                          Remove
-                        </a>
+                      <div className="col-lg col-sm-6 d-flex justify-content-sm-center justify-content-md-start justify-content-lg-center justify-content-xl-end mb-2">
+                        <div className="float-md-end">
+                          <a
+                            href="#!"
+                            className="btn btn-light border px-2 icon-hover-primary"
+                          >
+                            <i className="fas fa-heart fa-lg px-1 text-secondary"></i>
+                          </a>
+                          <a
+                            href="#"
+                            className="btn btn-light border text-danger icon-hover-danger"
+                          >
+                            Remove
+                          </a>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
 
                 <div className="border-top pt-4 mx-4 mb-4">
@@ -227,17 +222,20 @@ const CartApp = () => {
                   <hr />
                   <div className="d-flex justify-content-between">
                     <p className="mb-2">Total price:</p>
-                    <p className="mb-2 fw-bold">$283.00</p>
+                    <p className="mb-2 fw-bold">
+                      {totalPrice.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </p>
                   </div>
 
                   <div className="mt-3">
                     <a href="#" className="btn btn-success w-100 shadow-0 mb-2">
-                      {" "}
-                      Make Purchase{" "}
+                      Make Purchase
                     </a>
                     <a href="#" className="btn btn-light w-100 border mt-2">
-                      {" "}
-                      Back to shop{" "}
+                      Back to shop
                     </a>
                   </div>
                 </div>
@@ -248,6 +246,14 @@ const CartApp = () => {
         </div>
       </section>
       <Recommended />
+      {cart && (
+        <RemoveProduct
+          staticModal={staticModal}
+          setStaticModal={setStaticModal}
+          cart={cart}
+          confirmDelete={onConfirmDelete}
+        />
+      )}
     </>
   );
 };

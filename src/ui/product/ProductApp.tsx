@@ -106,9 +106,7 @@ const ProductApp = () => {
                               <i className="fas fa-star-half-alt"></i>
                               <span className="ms-1">4.5</span>
                             </div>
-                            <span className="text-muted">
-                              {product.productOrders.length} orders
-                            </span>
+                            <span className="text-muted">orders</span>
                           </div>
 
                           <p className="text mb-4 mb-md-0">

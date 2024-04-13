@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
 import Loading from "../../common/Loading";
-import { get8NewProduct } from "../../../service/product-service";
+import { addToCart, get8NewProduct } from "../../../service/product-service";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { getUserInfo } from "../../../config/redux/slide/user-slice";
+import { isLogin } from "../../../common/render";
+import { toast } from "react-toastify";
 
 const NewProduct = () => {
   const [products, setProducts] = useState<any>();
+  const userInfo = useSelector(getUserInfo);
 
   useEffect(() => {
     const find8New = () => {
@@ -12,6 +17,24 @@ const NewProduct = () => {
     };
     find8New();
   }, []);
+
+  const onAddToCart = (product: any) => {
+    const obj = {
+      productId: product.id,
+      quantity: 1,
+    };
+    addToCart(obj).then((res: any) => {
+      toast(`Thêm thành công! ${product.name}`);
+    });
+  };
+
+  const handleAddToCart = (product: any) => {
+    if (isLogin(userInfo)) {
+      onAddToCart(product);
+    } else {
+      toast("Vui lòng đăng nhập!!");
+    }
+  };
 
   if (!products) return <Loading />;
 
@@ -30,7 +53,7 @@ const NewProduct = () => {
                   <div className="mask" style={{ height: "50px" }}>
                     <div className="d-flex justify-content-start align-items-start h-100 m-2">
                       <h6>
-                        <span className="badge bg-danger pt-1">New</span>
+                        <span className="badge bg-danger pt-1">Mới</span>
                       </h6>
                     </div>
                   </div>
@@ -41,12 +64,16 @@ const NewProduct = () => {
                   />
                 </Link>
                 <div className="card-body p-0 pt-3">
-                  <a
-                    href="#!"
+                  <button className="btn btn-light border px-2 pt-2 float-end icon-hover">
+                    <i className="fas fa-heart fa-lg px-1 text-secondary"></i>
+                  </button>
+                  <button
+                    onClick={() => handleAddToCart(product)}
                     className="btn btn-light border px-2 pt-2 float-end icon-hover"
                   >
-                    <i className="fas fa-heart fa-lg px-1 text-secondary"></i>
-                  </a>
+                    <i className="fas fa-cart-shopping fa-lg px-1 text-secondary"></i>
+                  </button>
+
                   <h5 className="card-title">
                     {product.price.toLocaleString("it-IT", {
                       style: "currency",
