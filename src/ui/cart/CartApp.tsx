@@ -1,13 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import Recommended from "./recommended/Recommended";
-import Loading from "../common/Loading";
-import { showProductInCart } from "../../service/order-service";
-import { addToCart } from "../../service/product-service";
-import { toast } from "react-toastify";
-import RemoveProduct from "./modal/RemoveProduct";
-import { cartActions } from "../../config/redux/slide/cart-slice";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { cartActions } from "../../config/redux/slide/cart-slice";
+import { showProductInCart } from "../../service/order-service";
+import { addToCart } from "../../service/product-service";
+import Loading from "../common/Loading";
+import RemoveProduct from "./modal/RemoveProduct";
+import Recommended from "./recommended/Recommended";
 
 const CartApp = () => {
   const [carts, setCarts] = useState<any>();
@@ -240,6 +239,7 @@ const CartApp = () => {
                     <button
                       onClick={handleMakePurchase}
                       className="btn btn-success w-100 shadow-0 mb-2"
+                      disabled={carts.length <= 0}
                     >
                       Make Purchase
                     </button>

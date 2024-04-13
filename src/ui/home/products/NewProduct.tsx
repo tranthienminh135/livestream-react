@@ -8,11 +8,27 @@ import { isLogin } from "../../../common/render";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../../config/redux/redux-hook";
 import { cartActions } from "../../../config/redux/slide/cart-slice";
+import { showProductInCart } from "../../../service/order-service";
 
 const NewProduct = () => {
   const [products, setProducts] = useState<any>();
   const userInfo = useSelector(getUserInfo);
   const dispatch = useAppDispatch();
+  const [carts, setCarts] = useState<any>();
+
+  useEffect(() => {
+    onShowProductInCart();
+  }, []);
+
+  const onShowProductInCart = () => {
+    showProductInCart().then((res) => {
+      const size = res.reduce((c: any, cart: any) => {
+        return c + cart.quantity;
+      }, 0);
+      dispatch(cartActions.setCartSize(size));
+      setCarts(res);
+    });
+  };
 
   useEffect(() => {
     const find8New = () => {
@@ -26,11 +42,15 @@ const NewProduct = () => {
       productId: product.id,
       quantity: 1,
     };
+    onAddToCartHandler(obj, product);
+  };
+
+  const onAddToCartHandler = (obj: any, product: any) => {
     addToCart(obj).then((res: any) => {
       const size = res.reduce((c: any, cart: any) => {
         return c + cart.quantity;
       }, 0);
-      console.log(size);
+      setCarts(res);
       dispatch(cartActions.setCartSize(size));
       toast(`Thêm thành công! ${product.name}`);
     });
@@ -78,6 +98,11 @@ const NewProduct = () => {
                   <button
                     onClick={() => handleAddToCart(product)}
                     className="btn btn-light border px-2 pt-2 float-end icon-hover"
+                    disabled={
+                      carts &&
+                      carts?.find((c: any) => c.product.id === product.id)
+                        ?.quantity === product.quantity
+                    }
                   >
                     <i className="fas fa-cart-shopping fa-lg px-1 text-secondary"></i>
                   </button>
@@ -90,7 +115,8 @@ const NewProduct = () => {
                   </h5>
                   <p className="card-text mb-0">{product.name}</p>
                   <p className="text-muted">
-                    Category: {product.category.name}
+                    Category: {product.category.name} <br />
+                    Số lượng: {product.quantity}
                   </p>
                 </div>
               </div>
