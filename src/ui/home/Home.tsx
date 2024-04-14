@@ -5,7 +5,7 @@ import NewProduct from "./products/NewProduct";
 import Recommended from "./products/Recommended";
 import Commit from "./commit/Commit";
 import Feature from "./feature/Feature";
-import RecentlyProduct from "./products/RecentlyProduct";
+import PopularProduct from "./products/PopularProduct";
 
 const Home = () => {
   return (
@@ -14,7 +14,7 @@ const Home = () => {
       <Categories />
       <NewProduct />
       <Feature />
-      <RecentlyProduct />
+      <PopularProduct />
       <section>
         <div className="container">
           <div className="card p-4 bg-primary">

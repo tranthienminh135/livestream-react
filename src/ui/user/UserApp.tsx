@@ -9,13 +9,35 @@ const UserApp = () => {
 
   useEffect(() => {
     showProductHistory().then((res: any) => {
-      setOrderHistory(res);
-      console.log(res);
-      res.map((oh: any) => {
-        console.log(oh.bill.id);
+      const data = [...res];
+
+      const productsByBill: any = {};
+
+      data.forEach((product) => {
+        const billId = product.bill.id;
+
+        if (!productsByBill[billId]) {
+          productsByBill[billId] = {
+            bill: product.bill,
+            appUser: product.appUser,
+            products: [],
+          };
+        }
+
+        productsByBill[billId].products.push(product);
       });
+
+      const resultArray = Object.values(productsByBill);
+
+      setOrderHistory(resultArray);
     });
   }, []);
+
+  const renderOrderStatusClass = (status: any) => {
+    if (status.id === 1) return "text-primary";
+    if (status.id === 2) return "text-danger";
+    if (status.id === 3) return "text-success";
+  };
 
   return (
     <section className="py-5 bg-light">
@@ -71,20 +93,12 @@ const UserApp = () => {
                 <hr />
 
                 <div className="row g-2 mb-3">
-                  <div className="col-md-6">
+                  <div className="col-md-12">
                     <div className="border p-3 rounded-3 bg-light">
                       <b className="mx-2 text-muted">
                         <i className="fa fa-map-marker-alt"></i>
                       </b>
-                      United States, 3601 Old Capitol Trail, Unit A-7, Suite
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="border p-3 rounded-3 bg-light">
-                      <b className="mx-2 text-muted">
-                        <i className="fa fa-map-marker-alt"></i>
-                      </b>
-                      Moscow city, Street name, Building lenin, House 77
+                      {userInfo.address}
                     </div>
                   </div>
                 </div>
@@ -106,10 +120,17 @@ const UserApp = () => {
                         <div className="flex-grow-1">
                           <h6 className="mb-0">
                             Order ID: {oh.bill.code} <i className="dot"></i>
-                            <span className="text-success"> Shipped</span>
+                            <span
+                              className={renderOrderStatusClass(
+                                oh.bill.orderStatus
+                              )}
+                            >
+                              {oh.bill.orderStatus.name}
+                            </span>
                           </h6>
                           <span className="text-muted">
-                            Date: 16 December 2022
+                            Date:{" "}
+                            {new Date(oh.bill.orderDate).toLocaleDateString()}
                           </span>
                         </div>
                         <div>
@@ -129,86 +150,60 @@ const UserApp = () => {
                         <div className="col-lg-4">
                           <p className="mb-0 text-muted">Contact</p>
                           <p className="m-0">
-                            Mike Johnatan <br />
-                            Phone: 371-295-9131 <br />
-                            Email: info@mywebsite.com
+                            {oh.appUser.fullName} <br />
+                            Phone: {oh.bill.currentPhoneNumber} <br />
+                            Email: {oh.appUser.username}
                           </p>
                         </div>
                         <div className="col-lg-4 border-start">
                           <p className="mb-0 text-muted">Shipping address</p>
-                          <p className="m-0">
-                            United States <br />
-                            3601 Old Capitol Trail, Unit A-7, Suite 170777,
-                            Wilmington, DE 19808
-                          </p>
+                          <p className="m-0">{oh.bill.currentAddress}</p>
                         </div>
                         <div className="col-lg-4 border-start">
                           <p className="mb-0 text-muted">Payment</p>
                           <p className="m-0">
                             <span className="text-success">
-                              {" "}
-                              Visa **** 4216{" "}
-                            </span>{" "}
+                              {oh.bill.paymentStatus.name}
+                            </span>
                             <br />
                             Shipping fee: $56 <br />
-                            Total paid: $456
+                            {`Total paid: ${oh.bill.totalPrice.toLocaleString(
+                              "it-IT",
+                              {
+                                style: "currency",
+                                currency: "VND",
+                              }
+                            )}`}
                           </p>
                         </div>
                       </div>
                       <hr />
                       <ul className="row list-unstyled">
-                        <li className="col-xl-4 col-lg-6">
-                          <div className="d-flex mb-3 mb-xl-0">
-                            <div className="me-3">
-                              <img
-                                width="72"
-                                height="72"
-                                src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/10.webp"
-                                className="img-sm rounded border"
-                              />
+                        {oh.products.map((po: any) => (
+                          <li className="col-xl-4 col-lg-6">
+                            <div className="d-flex mb-3 mb-xl-0">
+                              <div className="me-3">
+                                <img
+                                  width="72"
+                                  height="72"
+                                  src={`data:image/jpeg;base64,${po.currentCover}`}
+                                  className="img-sm rounded border"
+                                />
+                              </div>
+                              <div className="">
+                                <p className="mb-0">{po.product.name}</p>
+                                <strong>
+                                  {" "}
+                                  {po.quantity}x ={" "}
+                                  {po.currentPrice.toLocaleString("it-IT", {
+                                    style: "currency",
+                                    currency: "VND",
+                                  })}{" "}
+                                </strong>
+                              </div>
                             </div>
-                            <div className="">
-                              <p className="mb-0">
-                                T-shirts with multiple colors
-                              </p>
-                              <strong> 2x = $25.98 </strong>
-                            </div>
-                          </div>
-                        </li>
-                        <li className="col-xl-4 col-lg-6">
-                          <div className="d-flex mb-3 mb-xl-0">
-                            <div className="me-3">
-                              <img
-                                width="72"
-                                height="72"
-                                src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/7.webp"
-                                className="img-sm rounded border"
-                              />
-                            </div>
-                            <div className="">
-                              <p className="mb-0">Gaming Headset 32db Black</p>
-                              <strong> 2x = $339.90 </strong>
-                            </div>
-                          </div>
-                        </li>
-                        <li className="col-xl-4 col-lg-6">
-                          <div className="d-flex mb-3 mb-md-0">
-                            <div className="me-3">
-                              <img
-                                width="72"
-                                height="72"
-                                src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/5.webp"
-                                className="img-sm rounded border"
-                              />
-                            </div>
-                            <div className="">
-                              <p className="mb-0">
-                                Apple Watch Series 4 Space Gray
-                              </p>
-                              <strong> 2x = $339.90 </strong>
-                            </div>
-                          </div>
-                        </li>
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   </div>
