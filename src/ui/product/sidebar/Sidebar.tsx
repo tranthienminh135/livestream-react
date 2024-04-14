@@ -1,9 +1,20 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { get8RandCategories } from "../../../service/category-service";
+import Loading from "../../common/Loading";
 
 const Sidebar = () => {
+  const [categories, setCategories] = useState<any>();
+
+  useEffect(() => {
+    get8RandCategories().then((res: any) => {
+      setCategories(res);
+    });
+  }, []);
+
+  if (!categories) return <Loading />;
+
   return (
     <div className="col-lg-3">
-      {/* Toggle button */}
       <button
         className="btn btn-outline-secondary mb-3 w-100 d-lg-none"
         type="button"
@@ -15,7 +26,6 @@ const Sidebar = () => {
       >
         <span>Show filter</span>
       </button>
-      {/* Collapsible wrapper */}
       <div
         className="collapse card d-lg-block mb-5"
         id="navbarSupportedContent"
@@ -31,7 +41,7 @@ const Sidebar = () => {
                 aria-expanded="true"
                 aria-controls="panelsStayOpen-collapseOne"
               >
-                Related items
+                Danh mục
               </button>
             </h2>
             <div
@@ -41,46 +51,13 @@ const Sidebar = () => {
             >
               <div className="accordion-body">
                 <ul className="list-unstyled">
-                  <li>
-                    <a href="#" className="text-dark">
-                      Electronics{" "}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="text-dark">
-                      Home items{" "}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="text-dark">
-                      Books, Magazines{" "}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="text-dark">
-                      Men's clothing{" "}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="text-dark">
-                      Interiors items{" "}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="text-dark">
-                      Underwears{" "}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="text-dark">
-                      Shoes for men{" "}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="text-dark">
-                      Accessories{" "}
-                    </a>
-                  </li>
+                  {categories.map((cate: any) => (
+                    <li key={cate.id}>
+                      <a href="#" className="text-dark">
+                        {cate.name}
+                      </a>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>

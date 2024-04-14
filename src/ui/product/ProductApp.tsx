@@ -4,7 +4,7 @@ import Heading from "./heading/Heading";
 import Pagination from "./pagination/Pagination";
 import Loading from "../common/Loading";
 import { getAllPageProduct } from "../../service/product-service";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const initParam = {
   page: 0,
@@ -18,10 +18,20 @@ const ProductApp = () => {
   const [products, setProducts] = useState<any>();
   const [param, setParam] = useState(initParam);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    fetchAllProductPage(param);
-  }, []);
+    const { state } = location;
+    if (state) {
+      const obj = {
+        ...param,
+        name: state,
+      };
+      fetchAllProductPage(obj);
+    } else {
+      fetchAllProductPage(param);
+    }
+  }, [location]);
 
   const fetchAllProductPage = (param: any) => {
     getAllPageProduct(param).then((res: any) => {

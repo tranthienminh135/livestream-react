@@ -23,6 +23,7 @@ const HeaderBar = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const totalQuantity = useSelector(getCartSize);
+  const [searchValue, setSearchValue] = useState();
 
   const handleLogin = () => {
     navigate("/login");
@@ -54,6 +55,15 @@ const HeaderBar = () => {
 
   const handleShowCart = () => {
     navigate("/cart");
+  };
+
+  const handleSearchChange = (e: any) => {
+    const { value } = e.target;
+    setSearchValue(value);
+  };
+
+  const handleSearch = () => {
+    navigate("/product", { state: searchValue });
   };
 
   return (
@@ -124,12 +134,20 @@ const HeaderBar = () => {
             <div className="col-lg-5 col-md-12 col-12">
               <div className="input-group float-center">
                 <div className="form-outline">
-                  <input type="search" id="form1" className="form-control" />
-                  <label className="form-label" htmlFor="form1">
-                    Search
-                  </label>
+                  <input
+                    type="search"
+                    id="form1"
+                    className="form-control"
+                    name="searchValue"
+                    placeholder="Nhập tên sản phẩm để tìm kiếm..."
+                    onChange={handleSearchChange}
+                  />
                 </div>
-                <button type="button" className="btn btn-primary shadow-0">
+                <button
+                  type="button"
+                  className="btn btn-primary shadow-0"
+                  onClick={handleSearch}
+                >
                   <i className="fas fa-search"></i>
                 </button>
               </div>
