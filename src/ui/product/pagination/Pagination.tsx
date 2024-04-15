@@ -1,46 +1,40 @@
 import React from "react";
 
-const Pagination = () => {
+const Pagination = (props: any) => {
+  const { products, onPageChange } = props;
   return (
     <nav
       aria-label="Page navigation example"
       className="d-flex justify-content-center mt-3"
     >
       <ul className="pagination">
-        <li className="page-item disabled">
-          <a className="page-link" href="#" aria-label="Previous">
+        <li className="page-item">
+          <button
+            className={`page-link ${products.number === 0 ? "disabled" : ""}`}
+            aria-label="Previous"
+            onClick={() => onPageChange(products.number - 1)}
+            disabled={products.number <= 0}
+          >
             <span aria-hidden="true">&laquo;</span>
-          </a>
+          </button>
         </li>
-        <li className="page-item active">
-          <a className="page-link" href="#">
-            1
-          </a>
-        </li>
+        {Array.of(...new Array(products.totalPages)).map((item, index) => (
+          <li
+            className={`page-item ${index === products.number ? "active" : ""}`}
+            key={index}
+          >
+            <button className="page-link">{index + 1}</button>
+          </li>
+        ))}
         <li className="page-item">
-          <a className="page-link" href="#">
-            2
-          </a>
-        </li>
-        <li className="page-item">
-          <a className="page-link" href="#">
-            3
-          </a>
-        </li>
-        <li className="page-item">
-          <a className="page-link" href="#">
-            4
-          </a>
-        </li>
-        <li className="page-item">
-          <a className="page-link" href="#">
-            5
-          </a>
-        </li>
-        <li className="page-item">
-          <a className="page-link" href="#" aria-label="Next">
+          <button
+            className="page-link"
+            aria-label="Next"
+            onClick={() => onPageChange(products.number + 1)}
+            disabled={products.number + 1 >= products.totalPages}
+          >
             <span aria-hidden="true">&raquo;</span>
-          </a>
+          </button>
         </li>
       </ul>
     </nav>

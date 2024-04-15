@@ -29,3 +29,8 @@ export const get4RecommendedProduct = async () => {
   const res = await axiosClient.get("/public/product/recommended");
   return res.data;
 };
+
+export const getMaxPriceProduct = async () => {
+  const res = await axiosClient.get("/public/product/max-price");
+  return res.data;
+};

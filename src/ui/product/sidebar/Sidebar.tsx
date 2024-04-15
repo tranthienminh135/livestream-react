@@ -1,20 +1,64 @@
 import React, { useEffect, useState } from "react";
-import { get8RandCategories } from "../../../service/category-service";
+import { get4RandCategories } from "../../../service/category-service";
 import Loading from "../../common/Loading";
+import { getMaxPriceProduct } from "../../../service/product-service";
 
-const Sidebar = () => {
+const initCategory = { id: -1, name: "Tất cả" };
+
+const initPrice = { priceFrom: 0, priceTo: 0 };
+
+const Sidebar = (props: any) => {
+  const { onChoiceCategory, onSearchPrice } = props;
   const [categories, setCategories] = useState<any>();
+  const [category, setCategory] = useState(initCategory);
+  const [price, setPrice] = useState<any>(initPrice);
+  const [maxPrice, setMaxPrice] = useState(0);
 
   useEffect(() => {
-    get8RandCategories().then((res: any) => {
-      setCategories(res);
+    getMaxPriceProduct().then((res: any) => setMaxPrice(res));
+  }, []);
+
+  useEffect(() => {
+    get4RandCategories().then((res: any) => {
+      const cates = [initCategory, ...res];
+      setCategories(cates);
     });
   }, []);
+
+  const handleChoiceCategory = (cate: any) => {
+    onChoiceCategory(cate);
+    setCategory(cate);
+  };
+
+  const handleRangeChange = (e: any) => {
+    const { value } = e.target;
+    setPrice({ ...price, priceTo: +value });
+  };
+
+  const handlePriceChange = (e: any) => {
+    const { name, value } = e.target;
+    if (value >= 0 && value <= maxPrice) {
+      setPrice({ ...price, [name]: +value });
+    } else if (name === "priceFrom") {
+      setPrice({ ...price, priceFrom: 0 });
+    } else if (name === "priceTo") {
+      setPrice({ ...price, priceTo: maxPrice });
+    }
+  };
+
+  const handleApplyPrice = () => {
+    onSearchPrice(price);
+  };
+
+  const handleClearPrice = () => {
+    onSearchPrice({ priceFrom: null, priceTo: null });
+    setPrice(initPrice);
+  };
 
   if (!categories) return <Loading />;
 
   return (
-    <div className="col-lg-3">
+    <div className="col-lg-4">
       <button
         className="btn btn-outline-secondary mb-3 w-100 d-lg-none"
         type="button"
@@ -50,15 +94,106 @@ const Sidebar = () => {
               aria-labelledby="headingOne"
             >
               <div className="accordion-body">
-                <ul className="list-unstyled">
+                <div className="list-group list-group-light">
                   {categories.map((cate: any) => (
-                    <li key={cate.id}>
-                      <a href="#" className="text-dark">
-                        {cate.name}
-                      </a>
-                    </li>
+                    <button
+                      onClick={() => handleChoiceCategory(cate)}
+                      key={cate.id}
+                      className={`list-group-item list-group-item-action px-3 border-0 ${
+                        category.id === cate.id ? "active" : ""
+                      }`}
+                      aria-current="true"
+                    >
+                      {cate.name}
+                    </button>
                   ))}
-                </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="accordion-item">
+            <h2 className="accordion-header" id="headingThree">
+              <button
+                className="accordion-button text-dark bg-light"
+                type="button"
+                data-mdb-toggle="collapse"
+                data-mdb-target="#panelsStayOpen-collapseThree"
+                aria-expanded="false"
+                aria-controls="panelsStayOpen-collapseThree"
+              >
+                Price
+              </button>
+            </h2>
+            <div
+              id="panelsStayOpen-collapseThree"
+              className="accordion-collapse collapse show"
+              aria-labelledby="headingThree"
+            >
+              <div className="accordion-body">
+                <div className="range">
+                  <input
+                    type="range"
+                    className="form-range"
+                    id="customRange1"
+                    onChange={handleRangeChange}
+                    min={0}
+                    max={maxPrice}
+                    value={price.priceTo}
+                  />
+                </div>
+                <div className="row mb-3">
+                  <div className="col-6">
+                    <p className="mb-0">
+                      {`Min: ${price.priceFrom.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}`}
+                    </p>
+                    <div className="form-outline">
+                      <input
+                        type="number"
+                        id="typeNumber"
+                        className="form-control"
+                        name="priceFrom"
+                        onChange={handlePriceChange}
+                        value={price.priceFrom}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-6">
+                    <p className="mb-0">{`Max: ${price.priceTo.toLocaleString(
+                      "it-IT",
+                      {
+                        style: "currency",
+                        currency: "VND",
+                      }
+                    )}`}</p>
+                    <div className="form-outline">
+                      <input
+                        type="number"
+                        id="typeNumber"
+                        className="form-control"
+                        name="priceTo"
+                        onChange={handlePriceChange}
+                        value={price.priceTo}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-primary w-100  mb-2"
+                  onClick={handleApplyPrice}
+                >
+                  apply
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary w-100 "
+                  onClick={handleClearPrice}
+                >
+                  Clear
+                </button>
               </div>
             </div>
           </div>
@@ -186,69 +321,7 @@ const Sidebar = () => {
               </div>
             </div>
           </div>
-          <div className="accordion-item">
-            <h2 className="accordion-header" id="headingThree">
-              <button
-                className="accordion-button text-dark bg-light"
-                type="button"
-                data-mdb-toggle="collapse"
-                data-mdb-target="#panelsStayOpen-collapseThree"
-                aria-expanded="false"
-                aria-controls="panelsStayOpen-collapseThree"
-              >
-                Price
-              </button>
-            </h2>
-            <div
-              id="panelsStayOpen-collapseThree"
-              className="accordion-collapse collapse show"
-              aria-labelledby="headingThree"
-            >
-              <div className="accordion-body">
-                <div className="range">
-                  <input
-                    type="range"
-                    className="form-range"
-                    id="customRange1"
-                  />
-                </div>
-                <div className="row mb-3">
-                  <div className="col-6">
-                    <p className="mb-0">Min</p>
-                    <div className="form-outline">
-                      <input
-                        type="number"
-                        id="typeNumber"
-                        className="form-control"
-                      />
-                      <label className="form-label" htmlFor="typeNumber">
-                        $0
-                      </label>
-                    </div>
-                  </div>
-                  <div className="col-6">
-                    <p className="mb-0">Max</p>
-                    <div className="form-outline">
-                      <input
-                        type="number"
-                        id="typeNumber"
-                        className="form-control"
-                      />
-                      <label className="form-label" htmlFor="typeNumber">
-                        $1,0000
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className="btn btn-white w-100 border border-secondary"
-                >
-                  apply
-                </button>
-              </div>
-            </div>
-          </div>
+
           <div className="accordion-item">
             <h2 className="accordion-header" id="headingThree">
               <button

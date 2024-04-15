@@ -1,10 +1,17 @@
-import React, { useEffect, useState } from "react";
-import Sidebar from "./sidebar/Sidebar";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { addToCart, getAllPageProduct } from "../../service/product-service";
+import Loading from "../common/Loading";
 import Heading from "./heading/Heading";
 import Pagination from "./pagination/Pagination";
-import Loading from "../common/Loading";
-import { getAllPageProduct } from "../../service/product-service";
-import { useLocation, useNavigate } from "react-router-dom";
+import Sidebar from "./sidebar/Sidebar";
+import { useSelector } from "react-redux";
+import { getSearch } from "../../config/redux/slide/common-slice";
+import { useAppDispatch } from "../../config/redux/redux-hook";
+import { cartActions } from "../../config/redux/slide/cart-slice";
+import { toast } from "react-toastify";
+import { isLogin } from "../../common/render";
+import { getUserInfo } from "../../config/redux/slide/user-slice";
 
 const initParam = {
   page: 0,
@@ -12,26 +19,24 @@ const initParam = {
   sortDirection: "DESC",
   sortBy: "createdDate",
   name: "",
+  categoryId: -1,
+  priceFrom: null,
+  priceTo: null,
 };
 
 const ProductApp = () => {
   const [products, setProducts] = useState<any>();
   const [param, setParam] = useState(initParam);
   const navigate = useNavigate();
-  const location = useLocation();
+  const searchRedux = useSelector(getSearch);
+  const dispatch = useAppDispatch();
+  const [carts, setCarts] = useState<any>();
+  const userInfo = useSelector(getUserInfo);
 
   useEffect(() => {
-    const { state } = location;
-    if (state) {
-      const obj = {
-        ...param,
-        name: state,
-      };
-      fetchAllProductPage(obj);
-    } else {
-      fetchAllProductPage(param);
-    }
-  }, [location]);
+    fetchAllProductPage({ ...param, name: searchRedux.navBar });
+    setParam({ ...param, name: searchRedux.navBar });
+  }, [searchRedux]);
 
   const fetchAllProductPage = (param: any) => {
     getAllPageProduct(param).then((res: any) => {
@@ -43,22 +48,103 @@ const ProductApp = () => {
     navigate(`/product/${id}`);
   };
 
+  const handleChoiceCategory = (cate: any) => {
+    const data = { ...param, categoryId: cate.id };
+    fetchAllProductPage(data);
+    setParam(data);
+  };
+
+  const handlePageChange = (page: number) => {
+    const data = { ...param, page };
+    fetchAllProductPage(data);
+    setParam(data);
+  };
+
+  const handleSortChange = (e: any) => {
+    const { value } = e.target;
+    let data = { ...param };
+    switch (value) {
+      case "new":
+        data = { ...param, sortDirection: "DESC", sortBy: "createdDate" };
+        break;
+      case "old":
+        data = { ...param, sortDirection: "ASC", sortBy: "createdDate" };
+        break;
+      case "lowToHigh":
+        data = { ...param, sortDirection: "ASC", sortBy: "price" };
+        break;
+      case "highToLow":
+        data = { ...param, sortDirection: "DESC", sortBy: "price" };
+        break;
+      default:
+        break;
+    }
+    fetchAllProductPage(data);
+    setParam(data);
+  };
+
+  const handleSearchPrice = (price: any) => {
+    const data = {
+      ...param,
+      priceFrom: price.priceFrom,
+      priceTo: price.priceTo,
+    };
+    fetchAllProductPage(data);
+    setParam(data);
+  };
+
+  const onAddToCart = (product: any) => {
+    const obj = {
+      productId: product.id,
+      quantity: 1,
+    };
+    onAddToCartHandler(obj, product);
+  };
+
+  const onAddToCartHandler = (obj: any, product: any) => {
+    addToCart(obj).then((res: any) => {
+      const size = res.reduce((c: any, cart: any) => {
+        return c + cart.quantity;
+      }, 0);
+      setCarts(res);
+      dispatch(cartActions.setCartSize(size));
+      toast(`Thêm thành công! ${product.name}`);
+    });
+  };
+
+  const handleAddToCart = (product: any) => {
+    if (isLogin(userInfo)) {
+      onAddToCart(product);
+    } else {
+      toast("Vui lòng đăng nhập!!");
+    }
+  };
+
   if (!products) return <Loading />;
+
   return (
     <>
       <Heading />
       <div className="container">
         <div className="row">
-          <Sidebar />
-          <div className="col-lg-9">
+          <Sidebar
+            onChoiceCategory={handleChoiceCategory}
+            onSearchPrice={handleSearchPrice}
+          />
+          <div className="col-lg-8">
             <header className="d-sm-flex align-items-center border-bottom mb-4 pb-3">
-              <strong className="d-block py-2">32 Items found </strong>
+              <strong className="d-block py-2">
+                {products.numberOfElements} Items found
+              </strong>
               <div className="ms-auto">
-                <select className="form-select d-inline-block w-auto border pt-1">
-                  <option value="0">Best match</option>
-                  <option value="1">Recommended</option>
-                  <option value="2">High rated</option>
-                  <option value="3">Randomly</option>
+                <select
+                  className="form-select d-inline-block w-auto border pt-1"
+                  onChange={handleSortChange}
+                >
+                  <option value="new">Mới nhất</option>
+                  <option value="old">Cũ nhất</option>
+                  <option value="highToLow">Giá từ cao đến thấp</option>
+                  <option value="lowToHigh">Giá từ thấp đến cao</option>
                 </select>
                 <div className="btn-group shadow-0 border">
                   <a href="#" className="btn btn-light" title="List view">
@@ -74,9 +160,11 @@ const ProductApp = () => {
                 </div>
               </div>
             </header>
-
+            {products.content.length <= 0 && (
+              <div className="text-center">No data</div>
+            )}
             {products.content.map((product: any) => (
-              <div className="row justify-content-center mb-3">
+              <div className="row justify-content-center mb-3" key={product.id}>
                 <div className="col-md-12">
                   <div className="card shadow-0 border rounded-3">
                     <div className="card-body">
@@ -120,7 +208,12 @@ const ProductApp = () => {
                           </div>
 
                           <p className="text mb-4 mb-md-0">
-                            {product.description}
+                            Số lượng: {product.quantity}
+                          </p>
+                          <p className="text mb-4 mb-md-0">
+                            {`Ngày bán: ${new Date(
+                              product.createdDate
+                            ).toLocaleDateString()}`}
                           </p>
                         </div>
                         <div className="col-xl-3 col-md-3 col-sm-5">
@@ -140,8 +233,9 @@ const ProductApp = () => {
                             <button
                               className="btn btn-primary shadow-0"
                               type="button"
+                              onClick={() => handleAddToCart(product)}
                             >
-                              Buy this
+                              Add to Cart
                             </button>
                             <a
                               href="#!"
@@ -158,7 +252,9 @@ const ProductApp = () => {
               </div>
             ))}
             <hr />
-            <Pagination />
+            {products.content.length > 0 && (
+              <Pagination products={products} onPageChange={handlePageChange} />
+            )}
           </div>
         </div>
       </div>

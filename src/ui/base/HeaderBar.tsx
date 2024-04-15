@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../config/redux/redux-hook";
 import {
@@ -8,7 +8,7 @@ import {
   userActions,
 } from "../../config/redux/slide/user-slice";
 import { handleLogout } from "../../service/auth-service";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { isLogin } from "../../common/render";
 import {
   MDBDropdown,
@@ -17,13 +17,19 @@ import {
   MDBDropdownToggle,
 } from "mdb-react-ui-kit";
 import { getCart, getCartSize } from "../../config/redux/slide/cart-slice";
+import {
+  commonActions,
+  getSearch,
+} from "../../config/redux/slide/common-slice";
 
 const HeaderBar = () => {
   const userInfo = useSelector(getUserInfo);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const totalQuantity = useSelector(getCartSize);
-  const [searchValue, setSearchValue] = useState();
+  const [searchValue, setSearchValue] = useState<string>();
+  const inputRef = useRef<any>();
+  const searchRedux = useSelector(getSearch);
 
   const handleLogin = () => {
     navigate("/login");
@@ -63,7 +69,13 @@ const HeaderBar = () => {
   };
 
   const handleSearch = () => {
-    navigate("/product", { state: searchValue });
+    dispatch(commonActions.setSearch({ ...searchRedux, navBar: searchValue }));
+    navigate(`/product`);
+  };
+
+  const handleClearSearch = () => {
+    setSearchValue("");
+    dispatch(commonActions.setSearch({ ...searchRedux, navBar: "" }));
   };
 
   return (
@@ -135,14 +147,25 @@ const HeaderBar = () => {
               <div className="input-group float-center">
                 <div className="form-outline">
                   <input
-                    type="search"
+                    type="text"
                     id="form1"
                     className="form-control"
                     name="searchValue"
+                    value={searchValue}
                     placeholder="Nhập tên sản phẩm để tìm kiếm..."
+                    ref={inputRef}
                     onChange={handleSearchChange}
                   />
                 </div>
+                {searchValue && (
+                  <button
+                    type="button"
+                    className="btn btn-danger shadow-0"
+                    onClick={handleClearSearch}
+                  >
+                    <i className="fas fa-circle-xmark"></i>
+                  </button>
+                )}
                 <button
                   type="button"
                   className="btn btn-primary shadow-0"

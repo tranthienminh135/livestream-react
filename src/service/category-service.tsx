@@ -5,7 +5,7 @@ export const getAllCategories = async () => {
   return res.data;
 };
 
-export const get8RandCategories = async () => {
-  const res = await axiosClient.get("/public/category/8rand");
+export const get4RandCategories = async () => {
+  const res = await axiosClient.get("/public/category/4rand");
   return res.data;
 };
