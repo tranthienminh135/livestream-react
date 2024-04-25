@@ -130,8 +130,8 @@ const HeaderBar = () => {
                         Thông tin
                       </MDBDropdownItem>
                       <MDBDropdownItem link>Wishlist</MDBDropdownItem>
-                      <MDBDropdownItem link>
-                        Something else here
+                      <MDBDropdownItem link onClick={() => navigate("/chat")}>
+                        Chat
                       </MDBDropdownItem>
                       <MDBDropdownItem divider />
                       <MDBDropdownItem link onClick={onLogoutHandler}>

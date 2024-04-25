@@ -17,6 +17,7 @@ import ProductDetailApp from "./ui/product/detail/ProductDetailApp";
 import UserApp from "./ui/user/UserApp";
 import { showProductInCart } from "./service/order-service";
 import { cartActions } from "./config/redux/slide/cart-slice";
+import ChatApp from "./ui/chat/ChatApp";
 
 function App() {
   const userInfo = useSelector(getUserInfo);
@@ -60,6 +61,7 @@ function App() {
             <>
               <Route path="/cart" element={<CartApp />} />
               <Route path="/checkout" element={<CheckoutApp />} />
+              <Route path="/chat" element={<ChatApp />} />
             </>
           )}
           {!isLogin(userInfo) && <Route path="/login" element={<Login />} />}
