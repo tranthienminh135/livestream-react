@@ -1,74 +1,79 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../config/redux/redux-hook";
 import { getUserInfo } from "../../config/redux/slide/user-slice";
+import { socket } from "./chat-config";
+import { MDBBtn, MDBInputGroup } from "mdb-react-ui-kit";
+import { getAllMessage } from "../../service/chat-service";
+import Loading from "../common/Loading";
 
-const chatBox = {
-  from: "tranthienminh135@gmail.com",
-  to: "user@gmail.com",
-  messages: [
-    {
-      id: 1,
-      message: "hello world!!",
-      from: "tranthienminh135@gmail.com",
-    },
-    {
-      id: 2,
-      message: "hi!!",
-      from: "user@gmail.com",
-    },
-    {
-      id: 3,
-      message: "how are you!!",
-      from: "tranthienminh135@gmail.com",
-    },
-    {
-      id: 5,
-      message: "im fine!!",
-      from: "user@gmail.com",
-    },
-    {
-      id: 6,
-      message: "what is your name!!",
-      from: "tranthienminh135@gmail.com",
-    },
-    {
-      id: 7,
-      message: "my name bao le!!",
-      from: "user@gmail.com",
-    },
-    {
-      id: 8,
-      message: "ohh!!",
-      from: "tranthienminh135@gmail.com",
-    },
-    {
-      id: 9,
-      message: "and you!!",
-      from: "user@gmail.com",
-    },
-    {
-      id: 10,
-      message: "what is your name!!",
-      from: "user@gmail.com",
-    },
-  ],
+const initParam = {
+  username: "",
 };
-const ChatBox = () => {
+
+const ChatBox = ({ toUser }: any) => {
   const userInfo = useAppSelector(getUserInfo);
+  const [msg, setMsg] = useState("");
+  const [msgParam, setMsgParam] = useState(initParam);
+  const [messages, setMessages] = useState<any>();
+  const ref = useRef<any>(null);
+
+  useEffect(() => {
+    if (userInfo && toUser) {
+      const param = {
+        ...msgParam,
+        username: toUser.username,
+      };
+      setMsgParam({ ...msgParam, ...param });
+      getAllMessage(param).then((res: any) => {
+        setMessages(res);
+      });
+    }
+  }, [userInfo, toUser]);
 
   const renderChatArea = (username: string) => {
     return userInfo.username === username ? "text-end" : "text-start";
   };
+
+  useEffect(() => {
+    socket.on("hello", (arg: any) => {
+      console.log("connected", arg);
+      setMessages(arg);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (messages && ref) {
+      ref.current.scrollTop = ref.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const handleSubmit = () => {
+    socket.emit("message", {
+      fromUser: userInfo.username,
+      toUser: toUser.username,
+      message: msg,
+    });
+    setMsg("");
+  };
+
+  const handleInputChange = (e: any) => {
+    const { value } = e.target;
+    setMsg(value);
+  };
+
+  if (!messages) return <Loading />;
 
   return (
     <>
       <div
         style={{ maxHeight: window.innerHeight - 300 }}
         className="col-12 row overflow-auto p-3 w-100"
+        ref={ref}
       >
-        {chatBox.messages.map((mes) => (
+        {messages.length <= 0 && <div>No message</div>}
+        {[...messages].reverse().map((mes: any) => (
           <div
-            className={`col-12 p-3 ${renderChatArea(mes.from)}`}
+            className={`col-12 p-3 ${renderChatArea(mes.fromUser)}`}
             key={mes.id}
             style={{ height: 100 }}
           >
@@ -77,9 +82,18 @@ const ChatBox = () => {
         ))}
       </div>
       <div className="col-12">
-        <div className="form-outline" data-mdb-input-init>
-          <input type="text" id="form12" className="form-control" />
-        </div>
+        <MDBInputGroup className="mb-3">
+          <input
+            className="form-control"
+            placeholder="Recipient's username"
+            type="text"
+            onChange={handleInputChange}
+            value={msg}
+          />
+          <MDBBtn outline onClick={handleSubmit}>
+            Send
+          </MDBBtn>
+        </MDBInputGroup>
       </div>
     </>
   );

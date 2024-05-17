@@ -5,6 +5,7 @@ import ChatBox from "./ChatBox";
 
 const ChatApp = () => {
   const [users, setUsers] = useState<any>();
+  const [user, setUser] = useState();
 
   useEffect(() => {
     const fetchAllUsers = () => {
@@ -15,7 +16,14 @@ const ChatApp = () => {
     fetchAllUsers();
   }, []);
 
+  useEffect(() => {
+    if (users) {
+      setUser(users[0]);
+    }
+  }, [users]);
+
   if (!users) return <Loading />;
+
   return (
     <div className="container p-2">
       <div
@@ -27,6 +35,7 @@ const ChatApp = () => {
             <div
               className="d-flex align-items-center m-4 btn"
               key={user.username}
+              onClick={() => setUser(user)}
             >
               <img
                 src={`data:image/jpeg;base64,${user.avatar}`}
@@ -45,7 +54,7 @@ const ChatApp = () => {
           className="col-9 row m-0 p-0"
           style={{ height: window.innerHeight - 200 }}
         >
-          <ChatBox />
+          {user && <ChatBox toUser={user} />}
         </div>
       </div>
     </div>
